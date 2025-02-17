@@ -9,6 +9,5 @@ local DATASTORE_KEY = "Profiles_0"
 local Store = ProfileStore.New(DATASTORE_KEY, ProfileTemplate.template)
 
 export type Profile = typeof(Store:StartSessionAsync())
-export type ProfileTemplate = ProfileTemplate.ProfileTemplate
 
 return Store

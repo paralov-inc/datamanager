@@ -4,7 +4,7 @@
     "$className": "DataModel",
     "ReplicatedStorage": {
       "Shared": {
-        "$path": "src/shared"
+        "$path": "example/shared"
       },
       "Packages": {
         "$path": "Packages"
@@ -12,16 +12,19 @@
     },
     "ServerScriptService": {
       "Server": {
-        "$path": "src/server"
+        "$path": "example/server"
       },
       "Packages": {
+        "DataService": {
+          "$path": "build.project.json"
+        },
         "$path": "ServerPackages"
       }
     },
     "StarterPlayer": {
       "StarterPlayerScripts": {
         "Client": {
-          "$path": "src/client"
+          "$path": "example/client"
         }
       }
     }
