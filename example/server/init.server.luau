@@ -1,12 +1,12 @@
 local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local DataService = require(ServerScriptService.Server.DataService)
+local PlayerDataManagementService = require(ServerScriptService.Server.PlayerDataManagementService)
 
-DataService:KnitStart()
+PlayerDataManagementService:Start()
 
 local function onPlayerAdded(player: Player)
-	local profile = DataService:GetProfile(player)
+	local profile = PlayerDataManagementService:GetProfileDataManager():GetProfile(player)
 
 	print("original", profile:Read())
 
@@ -26,7 +26,7 @@ local function onPlayerAdded(player: Player)
 
 	data = profile:Read()
 	data.Currency.Cents = -10
-	profile:Set(data, { ignoreValidation = true })
+	profile:Set(data)
 end
 
 for _, player in Players:GetPlayers() do
