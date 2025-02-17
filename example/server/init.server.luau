@@ -10,7 +10,9 @@ local function onPlayerAdded(player: Player)
 
 	print("original", profile:Read())
 
-	profile:Watch(function(newData, oldData)
+	profile:Watch(function(oldData)
+		local newData = profile:Read()
+
 		if oldData.Currency.Dollar == newData.Currency.Dollar then
 			return
 		end

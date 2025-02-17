@@ -7,23 +7,25 @@ DataProfile.__index = DataProfile
 
 export type DataProfile<T> = {
 	_writableData: T,
-	_callbacks: { [string]: (newData: T, oldData: T) -> () },
+	_readOnlyData: T,
+	_callbacks: { [string]: (oldData: T) -> () },
 	Read: (self: DataProfile<T>) -> T,
 	Set: (self: DataProfile<T>, newData: T, options: { preventCallback: boolean? }) -> (),
-	Watch: (self: DataProfile<T>, callback: (newData: T, oldData: T) -> ()) -> () -> (),
+	Watch: (self: DataProfile<T>, callback: (oldData: T) -> ()) -> () -> (),
 }
 
 function DataProfile.new<T>(writableData: T, validator: ((data: T) -> boolean)?)
 	local instance = setmetatable(
 		{
 			_writableData = writableData,
+			_readOnlyData = Sift.Dictionary.copyDeep(writableData),
 			_callbacks = {},
 		} :: DataProfile<T>,
 		DataProfile
 	)
 
 	function instance.Read(self: DataProfile<T>): T
-		return Sift.Dictionary.copyDeep(self._writableData)
+		return self._readOnlyData
 	end
 
 	function instance.Set(
@@ -43,18 +45,17 @@ function DataProfile.new<T>(writableData: T, validator: ((data: T) -> boolean)?)
 
 		-- Set the new data
 		self._writableData = newData
+		self._readOnlyData = Sift.Dictionary.copyDeep(newData)
 
 		-- If the callback is not prevented, call it
 		if not options or not options.preventCallback then
-			local callbackNewData = Sift.Dictionary.copyDeep(newData)
-
 			for _, callback in self._callbacks do
-				task.spawn(callback, callbackNewData, oldData)
+				task.spawn(callback, oldData)
 			end
 		end
 	end
 
-	function instance.Watch(self: DataProfile<T>, callback: (newData: T, oldData: T) -> ())
+	function instance.Watch(self: DataProfile<T>, callback: (oldData: T) -> ())
 		local guid = HttpService:GenerateGUID(false)
 
 		self._callbacks[guid] = callback
