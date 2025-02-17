@@ -1,4 +1,4 @@
-# DataService
+# DataManager
 
 At Paralov, we're trying to build solutions that allow you to ship faster in Roblox. Data sits at the core of most games, and this is our attempt at making an easy to use type-friendly interface for it. 
 
