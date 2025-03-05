@@ -3,10 +3,10 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local PlayerDataManagementService = require(ServerScriptService.Server.PlayerDataManagementService)
 
-PlayerDataManagementService:Start()
+PlayerDataManagementService.Start()
 
 local function onPlayerAdded(player: Player)
-	local profile = PlayerDataManagementService:GetProfileDataManager():GetProfile(player)
+	local profile = PlayerDataManagementService.GetProfileDataManager():GetProfile(player)
 
 	print("original", profile:Read())
 

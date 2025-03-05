@@ -1,5 +1,7 @@
 local DataProfile = require(script.Parent.DataProfile)
 
+local reconcile = require(script.Parent.utilities.reconcile)
+
 local DataManager = {}
 DataManager.__index = DataManager
 
@@ -9,34 +11,6 @@ export type DataManager<T> = {
 	OnPlayerDataReady: (player: Player, data: T) -> (),
 	OnPlayerRemoving: (player: Player) -> (),
 }
-
-local function DeepCopyTable(t)
-	local copy = {}
-	for key, value in pairs(t) do
-		if type(value) == "table" then
-			copy[key] = DeepCopyTable(value)
-		else
-			copy[key] = value
-		end
-	end
-	return copy
-end
-
-local function ReconcileTable(target, template)
-	for k, v in pairs(template) do
-		if type(k) == "string" then -- Only string keys will be reconciled
-			if target[k] == nil then
-				if type(v) == "table" then
-					target[k] = DeepCopyTable(v)
-				else
-					target[k] = v
-				end
-			elseif type(target[k]) == "table" and type(v) == "table" then
-				ReconcileTable(target[k], v)
-			end
-		end
-	end
-end
 
 function DataManager.new<T>(template: T, options: { validator: ((data: T) -> boolean)?, shouldReconcile: boolean? }?)
 	local instance = setmetatable(
@@ -61,7 +35,7 @@ function DataManager.new<T>(template: T, options: { validator: ((data: T) -> boo
 		end
 
 		if options and options.shouldReconcile then
-			ReconcileTable(data, template)
+			reconcile(data, template)
 		end
 
 		self._profiles[player] = DataProfile.new(data, options and options.validator or nil)

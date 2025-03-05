@@ -7,15 +7,14 @@ local ProfileTemplate = require(ReplicatedStorage.Shared.ProfileTemplate)
 local Store = require(ServerScriptService.Server.Store)
 
 local Profiles: { [Player]: Store.Profile } = {}
+local ProfileDataManager = DataManager.new(ProfileTemplate.template, {
+	validator = ProfileTemplate.schema,
+	shouldReconcile = true,
+})
 
-local PlayerDataManagementService = {
-	_profileDataManager = DataManager.new(ProfileTemplate.template, {
-		validator = ProfileTemplate.schema,
-		shouldReconcile = true,
-	}),
-}
+local PlayerDataManagementService = {}
 
-function PlayerDataManagementService._onPlayerAdded(self: PlayerDataManagementService, player: Player)
+local function onPlayerAdded(player: Player)
 	-- Start a profile session for this player's data:
 
 	local profile = Store:StartSessionAsync(`{player.UserId}`, {
@@ -36,7 +35,7 @@ function PlayerDataManagementService._onPlayerAdded(self: PlayerDataManagementSe
 
 		if player.Parent == Players then
 			Profiles[player] = profile
-			self._profileDataManager:OnPlayerDataReady(player, profile.Data)
+			ProfileDataManager:OnPlayerDataReady(player, profile.Data)
 			print(`Profile loaded for {player.DisplayName}!`)
 		else
 			-- The player has left before the profile session started
@@ -48,13 +47,13 @@ function PlayerDataManagementService._onPlayerAdded(self: PlayerDataManagementSe
 	end
 end
 
-function PlayerDataManagementService.Start(self: PlayerDataManagementService)
+function PlayerDataManagementService.Start()
 	for _, player in Players:GetPlayers() do
-		task.spawn(self._onPlayerAdded, self, player)
+		task.spawn(onPlayerAdded, player)
 	end
 
 	Players.PlayerAdded:Connect(function(player)
-		self:_onPlayerAdded(player)
+		onPlayerAdded(player)
 	end)
 
 	Players.PlayerRemoving:Connect(function(player)
@@ -65,9 +64,8 @@ function PlayerDataManagementService.Start(self: PlayerDataManagementService)
 	end)
 end
 
-function PlayerDataManagementService.GetProfileDataManager(self: PlayerDataManagementService)
-	return self._profileDataManager
+function PlayerDataManagementService.GetProfileDataManager()
+	return ProfileDataManager
 end
 
-type PlayerDataManagementService = typeof(PlayerDataManagementService)
 return PlayerDataManagementService
